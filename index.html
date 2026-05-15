@@ -146,6 +146,7 @@ function initLocal(){
     }
 }
 
+ldL();
 function initDB(){
     try{
         if(typeof supabase==='undefined'||!supabase.createClient)throw '';
@@ -159,11 +160,12 @@ function initDB(){
     }catch(e){_ready=false;initLocal();hideSp()}
 }
 
-function hideSp(){var s=document.getElementById('sp');if(!s)return;s.style.opacity='0';setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s)},600)}
+function svL(){try{localStorage.setItem('fca',JSON.stringify({c:_cache,r:_ready}))}catch(e){}}
+function ldL(){try{var d=JSON.parse(localStorage.getItem('fca'));if(d){_cache=d.c||{};_ready=d.r||false}}catch(e){}}
 
 var D={
     g:function(k){return _cache[k]||[]},
-    s:function(k,v){_cache[k]=v;if(_ready&&SB)this._sync(k,v)},
+    s:function(k,v){_cache[k]=v;svL();if(_ready&&SB)this._sync(k,v)},
     _sync:function(k,data){
         SB.from(k).select('id').then(function(res){
             var ex=(res.data||[]).map(function(x){return x.id});
@@ -177,11 +179,13 @@ var D={
         if(!_cache[k])_cache[k]=[];
         _cache[k]=_cache[k].filter(function(x){return x.id!==item.id});
         _cache[k].push(item);
+        svL();
         if(!_ready||!SB)return Promise.resolve();
         return SB.from(k).upsert(item,{onConflict:'id'})
     },
     delDoc:function(k,id){
         _cache[k]=(_cache[k]||[]).filter(function(x){return x.id!==id});
+        svL();
         if(!_ready||!SB)return Promise.resolve();
         return SB.from(k).delete().eq('id',id)
     },
