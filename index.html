@@ -159,7 +159,7 @@ function initDB(){
         }).catch(function(){_ready=false;initLocal();hideSp()});
     }catch(e){_ready=false;initLocal();hideSp()}
 }
-
+function hideSp(){var s=document.getElementById('sp');if(!s)return;s.style.opacity='0';setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s)},600)}
 function svL(){try{localStorage.setItem('fca',JSON.stringify({c:_cache,r:_ready}))}catch(e){}}
 function ldL(){try{var d=JSON.parse(localStorage.getItem('fca'));if(d){_cache=d.c||{};_ready=d.r||false}}catch(e){}}
 
