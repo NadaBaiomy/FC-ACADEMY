@@ -1,4 +1,4 @@
-var CACHE = 'fc-v1';
+var CACHE = 'fc-v2';
 var URLS = ['/', '/index.html'];
 
 self.addEventListener('install', function(e) {
