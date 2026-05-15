@@ -1,35 +1,27 @@
-var CACHE = 'fc-v2';
-var URLS = ['/', '/index.html'];
+var CACHE = 'fc-v4';
 
 self.addEventListener('install', function(e) {
-  e.waitUntil(caches.open(CACHE).then(function(c) {
-    return c.addAll(URLS);
-  }));
+  e.waitUntil(caches.open(CACHE));
   self.skipWaiting();
 });
 
 self.addEventListener('fetch', function(e) {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(fetch(e.request).catch(function() {
+      return caches.match('/index.html');
+    }));
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(function(r) {
-      return r || fetch(e.request).then(function(res) {
-        return caches.open(CACHE).then(function(c) {
-          if (e.request.url.indexOf('supabase') < 0) {
-            c.put(e.request, res.clone());
-          }
-          return res;
-        });
-      });
-    }).catch(function() {
-      return caches.match('/index.html');
+      return r || fetch(e.request);
     })
   );
 });
 
 self.addEventListener('activate', function(e) {
   e.waitUntil(caches.keys().then(function(ks) {
-    return Promise.all(ks.filter(function(k) {
-      return k !== CACHE;
-    }).map(function(k) {
+    return Promise.all(ks.map(function(k) {
       return caches.delete(k);
     }));
   }));
